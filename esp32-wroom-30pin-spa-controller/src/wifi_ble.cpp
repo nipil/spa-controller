@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <WiFi.h>
 
 #include "wifi_ble.h"
 
@@ -27,7 +28,7 @@ void WifiBLE::setup()
     pCharacteristicPSK->setCallbacks(this);
 
     pCharacteristicAction = pService->createCharacteristic(BLE_IP_UUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
-    pCharacteristicAction->setValue("load/save/erase");
+    pCharacteristicAction->setValue("");
     pCharacteristicAction->setCallbacks(this);
 
     pService->start();
@@ -92,6 +93,39 @@ void WifiBLE::onRead(BLECharacteristic *pCharacteristic)
     else if (pCharacteristic == pCharacteristicAction)
     {
         Serial.println("Action");
+
+        switch (WiFi.status())
+        {
+            case WL_NO_SHIELD:
+                pCharacteristic->setValue("WL_NO_SHIELD");
+                break;
+            case WL_IDLE_STATUS:
+                pCharacteristic->setValue("WL_IDLE_STATUS");
+                break;
+            case WL_NO_SSID_AVAIL:
+                pCharacteristic->setValue("WL_NO_SSID_AVAIL");
+                break;
+            case WL_SCAN_COMPLETED:
+                pCharacteristic->setValue("WL_SCAN_COMPLETED");
+                break;
+            case WL_CONNECTED:
+                pCharacteristic->setValue(WiFi.localIP().toString().c_str());
+                break;
+            case WL_CONNECT_FAILED:
+                pCharacteristic->setValue("WL_CONNECT_FAILED");
+                break;
+            case WL_CONNECTION_LOST:
+                pCharacteristic->setValue("WL_CONNECTION_LOST");
+                break;
+            case WL_DISCONNECTED:
+                pCharacteristic->setValue("WL_DISCONNECTED");
+                break;
+            default:
+                String msg("WARNING: unknown characteristic, do nothing");
+                Serial.println(msg);
+                pCharacteristic->setValue(msg.c_str());
+                break;
+        }
     }
     else
     {
@@ -128,6 +162,13 @@ void WifiBLE::onWrite(BLECharacteristic *pCharacteristic)
         else if (pCharacteristic->getValue() == BLE_ACTION_ERASE)
         {
             wifi_prefs.erase();
+        }
+        else if (pCharacteristic->getValue() == BLE_ACTION_RECONNECT)
+        {
+            Serial.println("WifiBLE: disconnect from AP and erase AP information");
+            WiFi.disconnect(false, true);
+            Serial.println("WifiBLE: connect to AP with stored information");
+            WiFi.begin(wifi_prefs.getSSID().c_str(), wifi_prefs.getPSK().c_str());
         }
         else
         {

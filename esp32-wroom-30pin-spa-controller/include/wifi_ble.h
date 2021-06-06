@@ -17,6 +17,7 @@
 #define BLE_ACTION_LOAD "load"
 #define BLE_ACTION_SAVE "save"
 #define BLE_ACTION_ERASE "erase"
+#define BLE_ACTION_RECONNECT "reconnect"
 
 class WifiBLE : public BLEServerCallbacks, public BLECharacteristicCallbacks {
 
