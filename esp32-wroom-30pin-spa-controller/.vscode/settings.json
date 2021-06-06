@@ -11,6 +11,12 @@
         "ostream": "cpp",
         "numeric": "cpp",
         "streambuf": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "vector": "cpp",
+        "system_error": "cpp"
     }
 }

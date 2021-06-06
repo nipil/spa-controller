@@ -7,23 +7,34 @@
 
 #include <WString.h>
 
+#include "wifi_prefs.h"
+
 #define BLE_SERVICE_UUID "c70dbaef-621d-4271-acc9-ee77588d866e"
 #define BLE_SSID_UUID "403eb537-5f04-433c-a8fe-7cb8abe6f92f"
 #define BLE_PSK_UUID "26ef191e-57cb-4026-92b0-bde16ce8da58"
+#define BLE_IP_UUID "c473b94e-ca95-4a09-9c0c-ffb08a3476c0"
+
+#define BLE_ACTION_LOAD "load"
+#define BLE_ACTION_SAVE "save"
+#define BLE_ACTION_ERASE "erase"
 
 class WifiBLE : public BLEServerCallbacks, public BLECharacteristicCallbacks {
 
 private:
   const char * name;
 
+  WifiPrefs& wifi_prefs;
+
   BLEServer *pServer;
   BLEService *pService;
-  BLECharacteristic *pCharacteristicSSID;
-  BLECharacteristic *pCharacteristicPSK;
   BLEAdvertising *pAdvertising;
 
+  BLECharacteristic *pCharacteristicSSID;
+  BLECharacteristic *pCharacteristicPSK;
+  BLECharacteristic *pCharacteristicAction;
+
 public:
-  WifiBLE(const char * _name);
+  WifiBLE(const char * _name, WifiPrefs& _wifi_prefs);
   
   void setup();
   void start_advertising();
