@@ -12,10 +12,10 @@ WifiManager wifi_manager(HOSTNAME);
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Built on " + String(__DATE__) + " at " + String(__TIME__));
+  Serial.println("MAIN: Built on " + String(__DATE__) + " at " + String(__TIME__));
 
   wifi_manager.setup();
-  Serial.println("Wifi started using stored credentials, with BLE configurator interface");
+  Serial.println("MAIN: Wifi started using stored credentials, with BLE configurator interface");
 }
 
 void loop() {

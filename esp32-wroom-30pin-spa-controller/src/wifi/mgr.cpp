@@ -41,7 +41,7 @@ void WifiManager::printStatusToSerial(unsigned long interval_ms, int connected_i
     // update
     last_state = current_state;
     last_print = current;
-    Serial.print("WifiManager: state=");
+    Serial.print("WifiManager: IDLE_STATUS_MSG state=");
     Serial.print(wifi_sta.statusToString(wifi_sta.getState()));
     Serial.print(" ip=");
     Serial.println(wifi_sta.getIp());

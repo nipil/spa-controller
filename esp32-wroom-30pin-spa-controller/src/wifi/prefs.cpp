@@ -15,7 +15,7 @@ String WifiPrefs::getSSID() const
 
 void WifiPrefs::setSSID(const String& _ssid)
 {
-    Serial.println("Setting " + String(WIFI_PREFS_NAMESPACE) + "::" + String(WIFI_PREFS_SSID_NAME) + " to " + _ssid);
+    Serial.println("WifiPrefs: Setting " + String(WIFI_PREFS_NAMESPACE) + "::" + String(WIFI_PREFS_SSID_NAME) + " to " + _ssid);
     ssid = _ssid;
 }
 
@@ -26,13 +26,13 @@ String WifiPrefs::getPSK() const
 
 void WifiPrefs::setPSK(const String& _psk)
 {
-    Serial.println("Setting " + String(WIFI_PREFS_NAMESPACE) + "::" + String(WIFI_PREFS_PSK_NAME) + " to " + _psk);
+    Serial.println("WifiPrefs: Setting " + String(WIFI_PREFS_NAMESPACE) + "::" + String(WIFI_PREFS_PSK_NAME) + " to " + _psk);
     psk = _psk;
 }
 
 void WifiPrefs::load()
 {
-    Serial.println("Loading preferences " + String(WIFI_PREFS_NAMESPACE));
+    Serial.println("WifiPrefs: Loading preferences from flash to memory " + String(WIFI_PREFS_NAMESPACE));
     Preferences preferences;
     preferences.begin(WIFI_PREFS_NAMESPACE,true);
     ssid = preferences.getString(WIFI_PREFS_SSID_NAME, WIFI_PREFS_SSID_DEFAULT);
@@ -42,7 +42,7 @@ void WifiPrefs::load()
 
 void WifiPrefs::save() const
 {
-    Serial.println("Saving preferences " + String(WIFI_PREFS_NAMESPACE));
+    Serial.println("WifiPrefs: Saving preferences from memory to flash " + String(WIFI_PREFS_NAMESPACE));
     Preferences preferences;
     preferences.begin(WIFI_PREFS_NAMESPACE,false);
     preferences.clear();
@@ -53,7 +53,7 @@ void WifiPrefs::save() const
 
 void WifiPrefs::erase()
 {
-    Serial.println("Erasing preferences " + String(WIFI_PREFS_NAMESPACE));
+    Serial.println("WifiPrefs: Erasing preferences " + String(WIFI_PREFS_NAMESPACE));
     Preferences preferences;
     preferences.begin(WIFI_PREFS_NAMESPACE,false);
     preferences.clear();

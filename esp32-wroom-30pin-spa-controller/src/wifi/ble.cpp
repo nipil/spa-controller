@@ -57,8 +57,9 @@ void WifiBLE::onConnect(BLEServer *pServer)
 
 void WifiBLE::onConnect(BLEServer *pServer, esp_ble_gatts_cb_param_t *param)
 {
-    Serial.println("WifiBLE: onConnect server param");
-    Serial.println(param->connect.conn_id);
+    Serial.print("WifiBLE: onConnect server param=");
+    Serial.print(param->connect.conn_id);
+    Serial.print(" address=");
     for (int i = 0; i < sizeof(param->connect.remote_bda); i++)
     {
         if (i != 0)
@@ -77,22 +78,19 @@ void WifiBLE::onDisconnect(BLEServer *pServer)
 // BLECharacteristicCallbacks
 void WifiBLE::onRead(BLECharacteristic *pCharacteristic)
 {
-    Serial.println("WifiBLE: onRead charac ");
-    Serial.println(pCharacteristic->getUUID().toString().c_str());
-    Serial.println(pCharacteristic->getValue().c_str());
+    String new_value;
+    printEventCharacteristicDebug("onRead", pCharacteristic);
     if (pCharacteristic == pCharacteristicSSID)
     {
-        Serial.println("SSID");
-        pCharacteristic->setValue(wifi_prefs.getSSID().c_str());
+        setCharacteristic("SSID", pCharacteristicSSID, wifi_prefs.getSSID());
     }
     else if (pCharacteristic == pCharacteristicPSK)
     {
-        Serial.println("PSK");
-        pCharacteristic->setValue(wifi_prefs.getPSK().c_str());
+        setCharacteristic("PSK", pCharacteristicPSK, wifi_prefs.getPSK());
     }
     else if (pCharacteristic == pCharacteristicAction)
     {
-        Serial.println("Action");
+        Serial.println("WifiBLE: recognized read ACTION");
         wl_status_t wifi_state = wifi_sta.getState();
         switch (wifi_state)
         {
@@ -103,82 +101,84 @@ void WifiBLE::onRead(BLECharacteristic *pCharacteristic)
             case WL_CONNECT_FAILED:
             case WL_CONNECTION_LOST:
             case WL_DISCONNECTED:
-                pCharacteristic->setValue(wifi_sta.statusToString(wifi_state).c_str());
+                setCharacteristic("ACTION", pCharacteristicAction, wifi_sta.statusToString(wifi_state));
                 break;
             case WL_CONNECTED:
-                pCharacteristic->setValue(wifi_sta.getIp().c_str());
+                setCharacteristic("ACTION", pCharacteristicAction, wifi_sta.getIp());
                 break;
             default:
-                String msg("WARNING: unknown characteristic, do nothing");
-                Serial.println(msg);
-                pCharacteristic->setValue(msg.c_str());
+                Serial.print("WifiBLE: !!WARNING!! unknown wifi state ");
+                Serial.print(wifi_state);
+                Serial.println(", do nothing");
+                String new_value = "UNKNOWN_WIFI_STATE_" + String(wifi_state);
+                setCharacteristic("ACTION", pCharacteristicAction, new_value);
                 break;
         }
     }
     else
     {
-        Serial.println("WARNING: unknown characteristic, do nothing");
+        Serial.println("WifiBLE: !!WARNING!! unknown characteristic, do nothing");
     }
 }
 
 void WifiBLE::onWrite(BLECharacteristic *pCharacteristic)
 {
-    Serial.println("WifiBLE: onWrite charac");
-    Serial.println(pCharacteristic->getUUID().toString().c_str());
-    Serial.println(pCharacteristic->getValue().c_str());
+    printEventCharacteristicDebug("onWrite", pCharacteristic);
     if (pCharacteristic == pCharacteristicSSID)
     {
-        Serial.println("SSID");
+        Serial.println("WifiBLE: recognized write SSID");
         wifi_prefs.setSSID(pCharacteristic->getValue().c_str());
     }
     else if (pCharacteristic == pCharacteristicPSK)
     {
-        Serial.println("PSK");
+        Serial.println("WifiBLE: recognized write PSK");
         wifi_prefs.setPSK(pCharacteristic->getValue().c_str());
     }
     else if (pCharacteristic == pCharacteristicAction)
     {
-        Serial.println("Action");
+        Serial.println("WifiBLE: recognized write ACTION");
         if (pCharacteristic->getValue() == BLE_ACTION_LOAD)
         {
+            Serial.println("WifiBLE: recognized trigger PREFS_LOAD");
             wifi_prefs.load();
         }
         else if (pCharacteristic->getValue() == BLE_ACTION_SAVE)
         {
+            Serial.println("WifiBLE: recognized trigger PREFS_SAVE");
             wifi_prefs.save();
         }
         else if (pCharacteristic->getValue() == BLE_ACTION_ERASE)
         {
+            Serial.println("WifiBLE: recognized trigger PREFS_ERASE");
             wifi_prefs.erase();
         }
         else if (pCharacteristic->getValue() == BLE_ACTION_RECONNECT)
         {
+            Serial.println("WifiBLE: recognized trigger RECONNECT");
             wifi_sta.restart();
         }
         else
         {
-            Serial.println("WARNING: unknown action, do nothing");
+            Serial.println("WifiBLE: !!WARNING!! unknown trigger, do nothing");
         }
     }
     else
     {
-        Serial.println("WARNING: unknown characteristic, do nothing");
+        Serial.println("WifiBLE: !!WARNING!! unknown characteristic, do nothing");
     }
 }
 
 void WifiBLE::onNotify(BLECharacteristic *pCharacteristic)
 {
-    Serial.println("WifiBLE: onNotify charac");
-    Serial.println(pCharacteristic->getUUID().toString().c_str());
-    Serial.println(pCharacteristic->getValue().c_str());
+    printEventCharacteristicDebug("onNotify", pCharacteristic);
 }
 
 void WifiBLE::onStatus(BLECharacteristic *pCharacteristic, Status s, uint32_t code)
 {
-    Serial.println("WifiBLE: onStatus status code");
-    Serial.println(pCharacteristic->getUUID().toString().c_str());
-    Serial.println(pCharacteristic->getValue().c_str());
-    Serial.println(statusToString(s));
+    printEventCharacteristicDebug("onStatus", pCharacteristic);
+    Serial.print("WifiBLE: onStatus status=");
+    Serial.print(statusToString(s));
+    Serial.print(" code=");
     Serial.println(code);
 }
 
@@ -205,4 +205,23 @@ const String WifiBLE::statusToString(const Status &s)
     default:
         return String("UNKNOWN_") + String(s);
     }
+}
+
+void WifiBLE::printEventCharacteristicDebug(const char * event, BLECharacteristic *pCharacteristic)
+{
+    Serial.print("WifiBLE: ");
+    Serial.print(event);
+    Serial.print(" charac UUID=");
+    Serial.print(pCharacteristic->getUUID().toString().c_str());
+    Serial.print(" current_value=");
+    Serial.println(pCharacteristic->getValue().c_str());
+}
+
+void WifiBLE::setCharacteristic(const char * name, BLECharacteristic *pCharacteristic, const String& new_value)
+{
+    Serial.print("WifiBLE: set characteristic ");
+    Serial.print(name);
+    Serial.print(" updated_value=");
+    Serial.println(new_value);
+    pCharacteristic->setValue(new_value.c_str());
 }

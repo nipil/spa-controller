@@ -54,6 +54,10 @@ public:
 	virtual void onStatus(BLECharacteristic* pCharacteristic, Status s, uint32_t code);
 
   static const String statusToString(const Status& s);
+
+private:
+  void setCharacteristic(const char * name, BLECharacteristic *pCharacteristic, const String& new_value);
+  void printEventCharacteristicDebug(const char * event, BLECharacteristic *pCharacteristic);
 };
 
 #endif

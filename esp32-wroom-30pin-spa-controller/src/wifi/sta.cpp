@@ -17,7 +17,7 @@ void WifiSTA::setup()
 
 void WifiSTA::connect() const
 {
-    Serial.println("WifiSTA: connect to AP with stored information");
+    Serial.println("WifiSTA: connect to AP with in-memory credentials");
     if (wifi_prefs.getSSID().length() == 0)
     {
         Serial.println("WifiSTA: missing SSID, canceling WiFi startup");
