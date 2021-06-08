@@ -1,5 +1,7 @@
-#ifndef SIPO_H
-#define SIPO_H
+#ifndef SN74HC595N_H
+#define SN74HC595N_H
+
+#define SN74HC595N_DELAY_AFTER_PIN_CHANGE_MICROSEC 1
 
 class SN74HC595N
 {

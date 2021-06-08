@@ -1,16 +1,6 @@
 #include <Arduino.h>
 
-#include "sipo.h"
-
-// macro to allow for some wait in ms, after each pin modification
-#define PIN_CHANGE_DELAY_MS 1
-
-// if PIN_CHANGE_DELAY_MS is defined, DELAY MACRO waits for the appropriate ms duration, otherwise it does not wait at all
-#ifdef PIN_CHANGE_DELAY_MS
-    #define PIN_CHANGE_WAIT_DELAY() delay(PIN_CHANGE_DELAY_MS)
-#else
-    #define PIN_CHANGE_WAIT_DELAY() do {} while(0)
-#endif
+#include "sipo/sn74hc595n.h"
 
 // number of parallel bits (has a serial output too)
 const int SN74HC595N::OUTPUT_BITS = 8;
@@ -19,7 +9,7 @@ const int SN74HC595N::OUTPUT_BITS = 8;
 void SN74HC595N::SetPin(const byte pin, const byte state)
 {
     digitalWrite(pin, state ? HIGH : LOW);
-    PIN_CHANGE_WAIT_DELAY();
+    delayMicroseconds(SN74HC595N_DELAY_AFTER_PIN_CHANGE_MICROSEC);
 }
 
 SN74HC595N::SN74HC595N(const byte pin_ser, const byte pin_srclk, const byte pin_rclk, const byte pin_srclr, const byte pin_oe)
@@ -61,7 +51,7 @@ void SN74HC595N::shift(const byte bit) const
 
 void SN74HC595N::store() const
 {
-    // SRCLK pin triggers on rising edge
+    // RCLK pin triggers on rising edge
     SetPin(_pin_rclk, LOW);
     SetPin(_pin_rclk, HIGH);
 }
@@ -110,25 +100,31 @@ void SN74HC595N_TestLooper::interval_loop()
     sipo.clear();
 
     // Test choice: push one more bit to test output serial value too
-    int count = sipo.OUTPUT_BITS + 1, bit;
+    const int count = sipo.OUTPUT_BITS + 1;
 
-    // Test choice: all bits are high and only selected bit is low
-    // Reason: used to test relay boards which input are usually active low
-    Serial.print("SN74HC595N_TestLooper: pushing bits ");
+    // Test choice: only one bit is different than the others, and chosen bit is low
+    byte bit, bits[count];
     for (int i = 0; i < count; i++)
     {
         if (i == current_index)
             bit = 0;
         else
             bit = 1;
-        Serial.print(bit);
-        Serial.print(" ");
+        bits[i] = bit;
         sipo.shift(bit);
     }
-    Serial.println();
 
     // update OUTPUT_BITS (please note that "serial output" pin is updated independantly of this)
     sipo.store();
+
+    // only log after fast operation is finished, so that serial line is not slowing the process
+    Serial.print("SN74HC595N_TestLooper: pushed bits from left to right, ");
+    for (int i = 0; i < count; i++)
+    {
+       Serial.print(bits[i]);
+       Serial.print(" ");
+    }
+    Serial.println();
 
     // prepare for next iteration
     current_index = (current_index + 1) % count;

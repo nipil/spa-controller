@@ -13,7 +13,7 @@
 #include "wifi/mgr.h"
 #endif
 
-#include "sipo.h"
+#include "sipo/sn74hc595n.h"
 
 #define HOSTNAME "bubulle"
 
