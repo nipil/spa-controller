@@ -3,8 +3,8 @@
 
 #include "wifi_ble.h"
 
-WifiBLE::WifiBLE(const char *_name, WifiPrefs& _wifi_prefs)
-: name(_name), wifi_prefs(_wifi_prefs),
+WifiBLE::WifiBLE(const char *_name, WifiPrefs& _wifi_prefs, const WifiSTA& _wifi_sta)
+: name(_name), wifi_prefs(_wifi_prefs), wifi_sta(_wifi_sta),
   pServer(NULL), pService(NULL), pAdvertising(NULL),
   pCharacteristicSSID(NULL), pCharacteristicPSK(NULL), pCharacteristicAction(NULL)
 {
@@ -93,32 +93,20 @@ void WifiBLE::onRead(BLECharacteristic *pCharacteristic)
     else if (pCharacteristic == pCharacteristicAction)
     {
         Serial.println("Action");
-
-        switch (WiFi.status())
+        wl_status_t wifi_state = wifi_sta.getState();
+        switch (wifi_state)
         {
             case WL_NO_SHIELD:
-                pCharacteristic->setValue("WL_NO_SHIELD");
-                break;
             case WL_IDLE_STATUS:
-                pCharacteristic->setValue("WL_IDLE_STATUS");
-                break;
             case WL_NO_SSID_AVAIL:
-                pCharacteristic->setValue("WL_NO_SSID_AVAIL");
-                break;
             case WL_SCAN_COMPLETED:
-                pCharacteristic->setValue("WL_SCAN_COMPLETED");
+            case WL_CONNECT_FAILED:
+            case WL_CONNECTION_LOST:
+            case WL_DISCONNECTED:
+                pCharacteristic->setValue(wifi_sta.statusToString(wifi_state).c_str());
                 break;
             case WL_CONNECTED:
-                pCharacteristic->setValue(WiFi.localIP().toString().c_str());
-                break;
-            case WL_CONNECT_FAILED:
-                pCharacteristic->setValue("WL_CONNECT_FAILED");
-                break;
-            case WL_CONNECTION_LOST:
-                pCharacteristic->setValue("WL_CONNECTION_LOST");
-                break;
-            case WL_DISCONNECTED:
-                pCharacteristic->setValue("WL_DISCONNECTED");
+                pCharacteristic->setValue(wifi_sta.getIp().c_str());
                 break;
             default:
                 String msg("WARNING: unknown characteristic, do nothing");
@@ -165,10 +153,7 @@ void WifiBLE::onWrite(BLECharacteristic *pCharacteristic)
         }
         else if (pCharacteristic->getValue() == BLE_ACTION_RECONNECT)
         {
-            Serial.println("WifiBLE: disconnect from AP and erase AP information");
-            WiFi.disconnect(false, true);
-            Serial.println("WifiBLE: connect to AP with stored information");
-            WiFi.begin(wifi_prefs.getSSID().c_str(), wifi_prefs.getPSK().c_str());
+            wifi_sta.restart();
         }
         else
         {
@@ -218,6 +203,6 @@ const String WifiBLE::statusToString(const Status &s)
     case ERROR_INDICATE_FAILURE:
         return "ERROR_INDICATE_FAILURE";
     default:
-        return "UNKNOWN";
+        return String("UNKNOWN_") + String(s);
     }
 }

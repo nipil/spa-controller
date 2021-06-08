@@ -8,6 +8,7 @@
 #include <WString.h>
 
 #include "wifi_prefs.h"
+#include "wifi_sta.h"
 
 #define BLE_SERVICE_UUID "c70dbaef-621d-4271-acc9-ee77588d866e"
 #define BLE_SSID_UUID "403eb537-5f04-433c-a8fe-7cb8abe6f92f"
@@ -25,6 +26,7 @@ private:
   const char * name;
 
   WifiPrefs& wifi_prefs;
+  const WifiSTA& wifi_sta;
 
   BLEServer *pServer;
   BLEService *pService;
@@ -35,7 +37,7 @@ private:
   BLECharacteristic *pCharacteristicAction;
 
 public:
-  WifiBLE(const char * _name, WifiPrefs& _wifi_prefs);
+  WifiBLE(const char * _name, WifiPrefs& _wifi_prefs, const WifiSTA& _wifi_sta);
   
   void setup();
   void start_advertising();
