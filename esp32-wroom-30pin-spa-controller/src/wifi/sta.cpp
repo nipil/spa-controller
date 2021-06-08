@@ -66,7 +66,7 @@ String WifiSTA::statusToString(const wl_status_t& status)
         case WL_SCAN_COMPLETED:
             return "WL_SCAN_COMPLETED";
         case WL_CONNECTED:
-            return "WL_CONNECTED"; // TODO: add IP
+            return "WL_CONNECTED";
         case WL_CONNECT_FAILED:
             return "WL_CONNECT_FAILED";
         case WL_CONNECTION_LOST:
