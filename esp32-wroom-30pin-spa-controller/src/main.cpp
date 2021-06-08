@@ -4,9 +4,9 @@
 #include <BLEServer.h>
 #include <WiFi.h>
 
-#include "wifi_prefs.h"
-#include "wifi_sta.h"
-#include "wifi_ble.h"
+#include "wifi/prefs.h"
+#include "wifi/sta.h"
+#include "wifi/ble.h"
 
 #define HOSTNAME "bubulle"
 

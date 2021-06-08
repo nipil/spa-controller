@@ -1,7 +1,7 @@
 #ifndef WIFI_STA_H
 #define WIFI_STA_H
 
-#include "wifi_prefs.h"
+#include "wifi/prefs.h"
 
 class WifiSTA {
 

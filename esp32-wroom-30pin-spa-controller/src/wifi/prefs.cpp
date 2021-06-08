@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Preferences.h>
 
-#include "wifi_prefs.h"
+#include "wifi/prefs.h"
 
 WifiPrefs::WifiPrefs()
 : ssid(WIFI_PREFS_SSID_DEFAULT), psk(WIFI_PREFS_PSK_DEFAULT)

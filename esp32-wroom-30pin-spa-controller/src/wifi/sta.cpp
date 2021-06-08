@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
-#include "wifi_sta.h"
+#include "wifi/sta.h"
 
 WifiSTA::WifiSTA(const WifiPrefs& _wifi_prefs)
 : wifi_prefs(_wifi_prefs)

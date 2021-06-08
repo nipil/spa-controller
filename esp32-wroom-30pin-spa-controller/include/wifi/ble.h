@@ -7,8 +7,8 @@
 
 #include <WString.h>
 
-#include "wifi_prefs.h"
-#include "wifi_sta.h"
+#include "wifi/prefs.h"
+#include "wifi/sta.h"
 
 #define BLE_SERVICE_UUID "c70dbaef-621d-4271-acc9-ee77588d866e"
 #define BLE_SSID_UUID "403eb537-5f04-433c-a8fe-7cb8abe6f92f"

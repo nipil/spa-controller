@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
-#include "wifi_ble.h"
+#include "wifi/ble.h"
 
 WifiBLE::WifiBLE(const char *_name, WifiPrefs& _wifi_prefs, const WifiSTA& _wifi_sta)
 : name(_name), wifi_prefs(_wifi_prefs), wifi_sta(_wifi_sta),
