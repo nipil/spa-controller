@@ -1,0 +1,11 @@
+http://service.balboa-instruments.com/appnotes/
+https://balboadirect.com/spa-circuit-boards.aspx
+
+https://spacare.com/51058BalboaSerielDeluxeTopsideControl.aspx
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=175399
+https://github.com/heisler3030/spaberry
+https://docs.google.com/document/d/1xuc5N6-Q7J7bQxBARYjUywhqkIFjOnh8vAHqEya5QAI/edit
+
+https://github.com/NickB1/OpenSpa
+

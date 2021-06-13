@@ -1,0 +1,16 @@
+balboa GS501DZ
+chipset: GS501DZR1B 20100521
+carte mere: P/N 22015_B
+expansion card: 22909 rev B 
+capteur temperature: 30344
+sticker boite: GS501DZ PN 55250-01 01/07/09
+transfo: 55251-011005210063
+board ext relay 55025
+
+Panneau: VL801D (51285 ?)
+
+The VL802D has been know as the Serial Deluxe and is now available in the VL line
+- Compatible with all VS and GS Systems with a "D" designation like "VS501D"
+- Icons visible in the display
+- Incandescent Backlighting for display and panel
+
