@@ -1,6 +1,8 @@
 http://service.balboa-instruments.com/appnotes/
 https://balboadirect.com/spa-circuit-boards.aspx
 
+service.balboa-instruments.com/appnotes/
+
 https://spacare.com/51058BalboaSerielDeluxeTopsideControl.aspx
 
 https://www.raspberrypi.org/forums/viewtopic.php?t=175399
