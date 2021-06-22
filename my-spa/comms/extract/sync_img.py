@@ -30,6 +30,8 @@ class App:
         self.vidcap = None
         self.current_image = None
 
+        self.last_spa_text = None
+        self.last_dsp_text = None
 
     def search_frame(self, event_usec):
         success, self.current_image = self.vidcap.read()
@@ -48,17 +50,39 @@ class App:
             print("error getting video frame", file=sys.stderr)
         return success
 
+    def build_diff_markers(self, current, previous):
+        diff = []
+        for i in range(len(current)):
+            if current[i] != previous[i]:
+                diff.append('X')
+            else:
+                diff.append(current[i])
+        return "".join(diff)
+
     def frame_embed_bits(self, spa_bits, dsp_bits):
         spa_text = "SPA {}".format(" ".join(blockize(spa_bits)))
         dsp_text = "DSP {}".format(" ".join(blockize(dsp_bits)))
         print(spa_text)
         print(dsp_text)
+
         font = cv2.FONT_HERSHEY_SIMPLEX
         x = 10
-        y = 500
+        yi = 50
+        y = yi
         white = (255,255,255)
+        red = (255,64,64)
+
         cv2.putText(self.current_image, spa_text, (x,y), font, 1, white, 2, cv2.LINE_AA)
-        cv2.putText(self.current_image, dsp_text, (x,y+100), font, 1, white, 2, cv2.LINE_AA)
+        if self.last_spa_text:
+            markers = self.build_diff_markers(spa_text, self.last_spa_text)
+            cv2.putText(self.current_image, markers, (x,y+1*yi), font, 1, red if markers != spa_text else white, 2, cv2.LINE_AA)
+        self.last_spa_text = spa_text
+
+        cv2.putText(self.current_image, dsp_text, (x,y+5*yi), font, 1, white, 2, cv2.LINE_AA)
+        if self.last_dsp_text:
+            markers = self.build_diff_markers(dsp_text, self.last_dsp_text)
+            cv2.putText(self.current_image, markers, (x,y+6*yi), font, 1, red if markers != dsp_text else white, 2, cv2.LINE_AA)
+        self.last_dsp_text = dsp_text
 
     def prepare_output(self):
         try:
