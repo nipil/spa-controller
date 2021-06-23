@@ -108,7 +108,7 @@ class App:
                 # process_frame
                 self.frame_embed_bits(event_tokens[1], event_tokens[3])
                 img_name = "{}/{:012d}.jpg".format(self.OUTPUT_DIR, event_usec)
-                cv2.imwrite(img_name, self.current_image)
+                cv2.imwrite(img_name, self.current_image, [cv2.IMWRITE_JPEG_QUALITY, 30])
 
     def run(self):
         self.prepare_output()
