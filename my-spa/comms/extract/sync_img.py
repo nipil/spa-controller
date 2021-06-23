@@ -70,7 +70,7 @@ class App:
         yi = 50
         y = yi
         white = (255,255,255)
-        red = (255,64,64)
+        red = (0,255,255)
 
         cv2.putText(self.current_image, spa_text, (x,y), font, 1, white, 2, cv2.LINE_AA)
         if self.last_spa_text:
