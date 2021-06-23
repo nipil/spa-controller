@@ -1,58 +1,110 @@
-Bits
-
-Main board (SPA)
+SPA (70 bits)
 
 	10us pulses
 
+b0
 	1 bit
 		0
-	7 bit
+b1
+	7 bit = digit4
 		XXXXXXX
-	7 bit
+		abcdefg
+
+			--a--
+			|   |
+			f   b
+			|   |
+			--g--
+			|   |
+			e   c
+			|   |
+			--d--
+b8
+	7 bit = digit3
 		XXXXXXX
-	7 bit
+b15
+	7 bit = digit2
 		XXXXXXX
-	7 bit
+b22
+	7 bit = digit1
 		XXXXXXX
+b29
 	2 bit
 		XX
+			X arrow_up
+			X colon
+b31
 	2 bit
 		00
+b33
 	2 bit
 		10
+b35
 	1 bit
 		0
+b36
 	8 bit
 		XXXXX0XX
+			X filter_1
+			X filter_2
+			X arrow_down
+			X heat
+			X set_heat
+			0
+			X AIR
+			X set_filter / filter ? (NOTE_FILTER: i never saw a diff with other bit with same description)
+b44
 	8 bit
 		X00XXXX0
+			X dot / degree ? (NOTE_DOTDEG: i never saw a diff with other bit with same description)
+			0
+			0
+			X LIGHT
+			X JETS1
+			X JETS23
+			X filter_stop
+			0
+b52
 	8 bit
 		000XX0XX
+            0
+            0
+            0
+            X time
+            X set_time
+            0
+            X filter_start
+            X standard
+b60
 	6 bit
 		XXXXXX
+			X economy
+			X PM
+			X set_filter / filter ? (NOTE_FILTER: i never saw a diff with other bit with same description)
+			X AM
+			X arrow_body
+			X dot / degree ? (NOTE_DOTDEG: i never saw a diff with other bit with same description)
+b66
 	2 bit
 		00
+b68
 	2 bit
 		00
 
-PANNEL
+DSP (6 bits)
 
 	60us pulses
+b70
 	6 bit
-
-TOTAL = 76 bits
-
-
-Display (DSP):
-
-111111111111111111111111111111111100000000000000000000000000000000000011 XXXX
-111111111111111111111111111111111100000000000000000000000000000000000011 0000 > IDLE
-111111111111111111111111111111111100000000000000000000000000000000000011 1000
-111111111111111111111111111111111100000000000000000000000000000000000011 1001
-111111111111111111111111111111111100000000000000000000000000000000000011 1010
-111111111111111111111111111111111100000000000000000000000000000000000011 1011
-111111111111111111111111111111111100000000000000000000000000000000000011 1100
-111111111111111111111111111111111100000000000000000000000000000000000011 1101
-111111111111111111111111111111111100000000000000000000000000000000000011 1110
-111111111111111111111111111111111100000000000000000000000000000000000011 1111
-
+		1
+		1
+		XXXX
+			0000 > IDLE
+			1000 > PROG
+			1001 > JETS1
+			1010 > JETS23
+			1011 > LIGHT
+			1100 > CLOCK
+			1101 > AIR
+			1110 > HOTTER
+			1111 > COLDER
