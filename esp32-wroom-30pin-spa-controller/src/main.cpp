@@ -3,6 +3,9 @@
 // custom defines for faster dev
 //#define NO_WIFI
 //#define DO_SIPO_TEST
+#define DO_COMMS_TEST
+
+#define HOSTNAME "bubulle"
 
 #ifndef NO_WIFI
 #include <BLEDevice.h>
@@ -11,15 +14,12 @@
 #include <WiFi.h>
 
 #include "wifi/mgr.h"
-#endif
 
-#include "sipo/sn74hc595n.h"
-
-#define HOSTNAME "bubulle"
-
-#ifndef NO_WIFI
 WifiManager wifi_manager(HOSTNAME);
 #endif
+
+#ifdef DO_SIPO_TEST
+#include "sipo/sn74hc595n.h"
 
 SN74HC595N sipo (
   16,  // pin_ser
@@ -28,6 +28,22 @@ SN74HC595N sipo (
   26,  // pin_srclr
   25   // pin_oe
 );
+#endif
+
+#ifdef DO_COMMS_TEST
+#include "comms/panel.h"
+
+CommsPanel panel (
+  27, // pin_input_clock
+  5, // pin_input_spa
+  4 // pin_input_dsp
+);
+
+void IRAM_ATTR input_clock_pin_change_interrupt()
+{
+  panel.input_clock_pin_changed();
+}
+#endif
 
 void setup() {
   Serial.begin(115200);
@@ -38,8 +54,13 @@ void setup() {
   Serial.println("MAIN: Wifi started using stored credentials, with BLE configurator interface");
 #endif
 
+#ifdef DO_SIPO_TEST
   sipo.setup();
   Serial.println("MAIN: SN74HC595N serial-in-parallel-out extender initialized");
+#endif
+
+  panel.setup(input_clock_pin_change_interrupt);
+  Serial.println("MAIN: Balboa GS501D/VL801D communication handler initialized");
 }
 
 #ifdef DO_SIPO_TEST
@@ -55,5 +76,9 @@ void loop() {
 
 #ifdef DO_SIPO_TEST
   sipo_test.interval_loop();
+#endif
+
+#ifdef DO_COMMS_TEST
+  panel.interval_loop();
 #endif
 }
