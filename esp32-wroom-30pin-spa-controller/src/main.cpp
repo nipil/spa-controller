@@ -1,11 +1,12 @@
 #include <Arduino.h>
 
 // custom defines for faster dev
-//#define NO_WIFI
-//#define DO_SIPO_TEST
+#define NO_WIFI
+// #define DO_SIPO_TEST
 #define DO_COMMS_TEST
 
 #define HOSTNAME "bubulle"
+#define IDLE_MESSAGE_INTERVAL_MS 10000
 
 #ifndef NO_WIFI
 #include <BLEDevice.h>
@@ -81,4 +82,13 @@ void loop() {
 #ifdef DO_COMMS_TEST
   panel.interval_loop();
 #endif
+
+  static ulong last_idle_message_ms = 0;
+  ulong current_time_ms = millis();
+  if (current_time_ms - last_idle_message_ms > IDLE_MESSAGE_INTERVAL_MS)
+  {
+      last_idle_message_ms = current_time_ms;
+      Serial.printf("Main: idle (%lu ms)", current_time_ms);
+      Serial.println();
+  }
 }

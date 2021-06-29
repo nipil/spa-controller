@@ -2,11 +2,55 @@
 
 #include "comms/panel.h"
 
+/***************************************************************************/
+
+CommsBuffer::CommsBuffer()
+{
+    reset();
+}
+
+bool CommsBuffer::operator !=(const CommsBuffer &b) const
+{
+    return memcmp(bit_frame, b.bit_frame, sizeof(BitBuffer));
+}
+
+void CommsBuffer::reset()
+{
+    memset(bit_frame, 0, sizeof(bit_frame));
+}
+
+void CommsBuffer::print() const
+{
+    ulong current_time = millis();
+    Serial.print("CommsBuffer: ");
+    for (int i=0; i<sizeof(bit_frame); i++)
+    {
+        Serial.printf("%i", bit_frame[i]);
+    }
+    Serial.printf(" (%lu)", current_time);
+    Serial.println();
+}
+
+inline byte CommsBuffer::getBit(byte bit_index) const
+{
+    if (bit_index >= COMMS_PANEL_NUM_CLOCK_EVENTS)
+        throw bit_index;
+    return bit_frame[bit_index];
+}
+
+inline void CommsBuffer::setBit(byte bit_index, byte bit_value)
+{
+    if (bit_index >= COMMS_PANEL_NUM_CLOCK_EVENTS)
+        throw bit_index;
+    bit_frame[bit_index] = bit_value;
+}
+
+/***************************************************************************/
+
 CommsPanel::CommsPanel(byte _in_pin_clk, byte _in_pin_spa, byte _in_pin_dsp)
 : in_pin_clk(_in_pin_clk), in_pin_spa(_in_pin_spa), in_pin_dsp(_in_pin_dsp)
 {
     reset_frame();
-    memset(incoming_frame, 0, sizeof(incoming_frame)*sizeof(incoming_frame[0]));
 }
 
 void CommsPanel::setup( void (*clk_int)() )
@@ -22,7 +66,7 @@ void CommsPanel::reset_frame()
 {
     frame_start_usec = micros();
     clock_count = 0;
-    memset(current_frame, 0, sizeof(current_frame)*sizeof(current_frame[0]));
+    current_frame.reset();
 }
 
 void IRAM_ATTR CommsPanel::input_clock_pin_changed()
@@ -50,11 +94,11 @@ void CommsPanel::clock_rising() {
     // put bits in cache
     if (clock_count < COMMS_PANEL_SPA_BITS)
     {
-        current_frame[clock_count] = digitalRead(in_pin_spa);
+        current_frame.setBit(clock_count, digitalRead(in_pin_spa));
     }
     else
     {
-        current_frame[clock_count] = digitalRead(in_pin_dsp);
+        current_frame.setBit(clock_count, digitalRead(in_pin_dsp));
     }
 
     // count bits
@@ -63,26 +107,12 @@ void CommsPanel::clock_rising() {
 
 void CommsPanel::save_full_frame()
 {
-    memcpy(incoming_frame, current_frame, sizeof(incoming_frame)*sizeof(incoming_frame[0]));
-}
-
-void CommsPanel::print_incoming_frame()
-{
-    for (int i=0; i<sizeof(incoming_frame); i++)
-    {
-        Serial.printf("%i", incoming_frame[i]);
-    }
+    bool print = incoming_frame != current_frame;
+    incoming_frame = current_frame;
+    if (print)
+        current_frame.print();
 }
 
 void CommsPanel::interval_loop()
 {
-    static ulong last_display = 0;
-    ulong current_time = millis();
-    if (current_time - last_display > 1000)
-    {
-        last_display = current_time;
-        Serial.printf("%010lu:", current_time);
-        print_incoming_frame();
-        Serial.println("");
-    }
 }
