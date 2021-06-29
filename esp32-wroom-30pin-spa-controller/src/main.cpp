@@ -3,7 +3,7 @@
 // custom defines for faster dev
 #define NO_WIFI
 // #define DO_SIPO_TEST
-#define DO_COMMS_TEST
+#define DO_PANEL_TEST
 
 #define HOSTNAME "bubulle"
 #define IDLE_MESSAGE_INTERVAL_MS 10000
@@ -31,10 +31,10 @@ SN74HC595N sipo (
 );
 #endif
 
-#ifdef DO_COMMS_TEST
+#ifdef DO_PANEL_TEST
 #include "comms/panel.h"
 
-CommsPanel panel (
+PanelProtocol panel_proto (
   27, // pin_input_clock
   5, // pin_input_spa
   4 // pin_input_dsp
@@ -42,7 +42,7 @@ CommsPanel panel (
 
 void IRAM_ATTR input_clock_pin_change_interrupt()
 {
-  panel.input_clock_pin_changed();
+  panel_proto.input_clock_pin_changed();
 }
 #endif
 
@@ -60,7 +60,7 @@ void setup() {
   Serial.println("MAIN: SN74HC595N serial-in-parallel-out extender initialized");
 #endif
 
-  panel.setup(input_clock_pin_change_interrupt);
+  panel_proto.setup(input_clock_pin_change_interrupt);
   Serial.println("MAIN: Balboa GS501D/VL801D communication handler initialized");
 }
 
@@ -79,16 +79,38 @@ void loop() {
   sipo_test.interval_loop();
 #endif
 
-#ifdef DO_COMMS_TEST
-  panel.interval_loop();
+#ifdef DO_PANEL_TEST
+  panel_proto.interval_loop();
 #endif
 
+  // display an idle message showing that the program is running
   static ulong last_idle_message_ms = 0;
   ulong current_time_ms = millis();
   if (current_time_ms - last_idle_message_ms > IDLE_MESSAGE_INTERVAL_MS)
   {
       last_idle_message_ms = current_time_ms;
-      Serial.printf("Main: idle (%lu ms)", current_time_ms);
+      Serial.printf("Main: idle message (%lu ms), press h for help.", current_time_ms);
       Serial.println();
+  }
+
+  // handle user input
+  if (Serial.available() > 0)
+  {
+    int incomingByte = Serial.read();
+    switch (incomingByte)
+    {
+      case 'r':
+        Serial.println("Main: rebooting");
+        ESP.restart();
+        break;
+
+      case 'h':
+        Serial.println("Main: (h)elp (r)eboot");
+        break;
+
+      default:
+        Serial.println("Main: unknown input, ignoring");
+        break;
+    }
   }
 }
